@@ -1,0 +1,119 @@
+---
+title: "Modelos de Series Temporales para Pronóstico en los Negocios"
+author: "CasaresFelix"
+output:   github_document
+    
+---
+
+
+
+
+# CARGANDO LIBRERIAS ##
+
+
+```{r}
+
+library(tsibble)
+library(feasts)
+library(ggplot2)
+library(openxlsx)
+library(dplyr)
+library(ggthemes)
+library(reshape2)
+library(fable)
+library(lubridate)
+
+
+```
+
+
+# CARGANDO LA BASE DE DATOS ##
+
+```{r}
+
+
+dataset <- openxlsx::read.xlsx("c:/Users/GIGATRONICS/Desktop/rec.xlsx",
+                   sheet="Hoja2",detectDates = T)
+
+
+dataset <-dataset %>%
+  select(c(fecha_corte,dep.vista,col.cart,
+           exportaciones,
+           mucif_duraderos))
+
+ts.plot(dataset$dep.vista)
+
+```
+
+# transformacion a TS
+
+```{r}
+
+plot(ts(dataset$dep.vista, start = c(2009,01),end = c(2019,09),frequency = 12))
+
+```
+
+
+#modelo de forecast automatico 
+
+```{r}
+
+forecast::auto.arima(ts(dataset$dep.vista, start = c(2009,01),end = c(2019,09),frequency = 12))
+
+```
+
+# pronostico con modelo 
+
+```{r}
+
+#hola
+
+forecast::forecast(forecast::auto.arima(ts(dataset$dep.vista, start = c(2009,01),end = c(2019,09),frequency = 12)),12)
+
+
+ts.plot(forecast::forecast(forecast::auto.arima(ts(dataset$dep.vista, start = c(2009,01),end = c(2019,09),frequency = 12)),12))
+
+
+autoplot(forecast::forecast(forecast::auto.arima(ts(dataset$dep.vista, start = c(2009,01),end = c(2019,09),frequency = 12)),12))
+
+```
+
+
+# guardando modelo
+
+
+```{r}
+
+modelo1 <- forecast::auto.arima(ts(dataset$dep.vista, start = c(2009,01),end = c(2019,09),frequency = 12))
+
+autoplot(forecast::forecast(modelo1))
+
+
+
+autoplot(forecast::forecast(modelo1)) +ggthemes::theme_pander()
+
+autoplot(forecast::forecast(modelo1)) +ggthemes::theme_wsj()
+
+autoplot(forecast::forecast(modelo1)) +ggthemes::theme_stata()
+```
+
+
+# validando modelo
+
+
+```{r}
+
+forecast::accuracy(modelo1)
+
+forecast::checkresiduals(modelo1)
+
+autoplot(modelo1)
+
+
+
+
+```
+
+
+
+
